@@ -1,27 +1,28 @@
 import discord
 from discord.ext import commands
 import os
+from dotenv import load_dotenv   # pip install python-dotenv
 
-# Variabili d'ambiente su Railway (NON hardcode)
-TOKEN = os.getenv("DISCORD_TOKEN")
-USER_ID = int(os.getenv("USER_ID"))
+load_dotenv()                    # carica .env se esiste
+
+TOKEN     = os.getenv("DISCORD_TOKEN")
+USER_ID   = int(os.getenv("USER_ID"))   # il tuo ID numerico
 
 intents = discord.Intents.default()
 intents.voice_states = True
-intents.members = True
-intents.messages = True
-intents.dm_messages = True
+intents.members        = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
-    print(f"✅ Bot connesso come {bot.user}")
+    print(f"✅ Bot connesso come {bot.user} (ID: {bot.user.id})")
 
 @bot.event
 async def on_voice_state_update(member, before, after):
+    # entra in un canale vocale
     if before.channel is None and after.channel is not None:
         user = await bot.fetch_user(USER_ID)
-        await user.send(f"🔔 {member.name} è entrato nel canale vocale: {after.channel.name}")
+        await user.send(f"🔔 **{member}** è entrato nel canale vocale **{after.channel.name}**")
 
 bot.run(TOKEN)
