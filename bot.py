@@ -25,4 +25,21 @@ async def on_voice_state_update(member, before, after):
         user = await bot.fetch_user(USER_ID)
         await user.send(f"🔔 **{member}** è entrato nel canale vocale **{after.channel.name}**")
 
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def setvoicechannel(ctx):
+    """Imposta il canale corrente come destinazione notifiche vocali."""
+    # salva nel dizionario interno (o su file/DB se vuoi persistenza)
+    bot.voice_log_channel = ctx.channel.id
+    await ctx.send(f"✅ Notifiche vocali inviate qui: {ctx.channel.mention}")
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    if before.channel is None and after.channel is not None:
+        cid = getattr(bot, "voice_log_channel", None)
+        if cid:
+            channel = bot.get_channel(cid)
+            if channel:
+                await channel.send(f"🔔 **{member}** è entrato nel canale vocale **{after.channel.name}**")
+
 bot.run(TOKEN)
